@@ -1,6 +1,6 @@
 {
   "name": "@rhodesjason/hubot-retro",
-  "version": "1.0.0-alpha-0",
+  "version": "1.0.0-alpha-1",
   "description": "Agile retro recorder in hubot",
   "main": "index.js",
   "scripts": {
