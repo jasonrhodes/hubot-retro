@@ -1,0 +1,20 @@
+{
+  "name": "hubot-retro",
+  "version": "1.0.0",
+  "description": "Agile retro recorder in hubot",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec ./test"
+  },
+  "author": "Jason Rhodes",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "moment": "^2.10.6"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.3.0",
+    "sinon": "^1.16.1"
+  }
+}
