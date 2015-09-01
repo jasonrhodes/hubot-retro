@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 var notesInit = require('../src/notes');
 var sinon = require('sinon');
+var _ = require('lodash');
 
 describe('Notes DB', function () {
 
@@ -30,31 +31,33 @@ describe('Notes DB', function () {
     };
     var exampleDb = { retro: {
       notes: [
-        {type: 'good', text: 'abc', createdAt: new Date('2010-01-01T00:00:00Z'), id: '1a'},
-        {type: 'bad',  text: 'def', createdAt: new Date('2011-04-29T00:00:00Z'), id: '2b'},
-        {type: 'bad',  text: 'ghi', createdAt: new Date('2012-08-31T00:00:00Z'), id: '3c'},
-        {type: 'good', text: 'jkl', createdAt: new Date('2013-12-01T00:00:00Z'), id: '4d'}
+        {type: 'good', text: 'abc', person: 'ww', createdAt: new Date('2010-01-01T00:00:00Z'), id: '1a'},
+        {type: 'bad',  text: 'def', person: 'hz', createdAt: new Date('2011-04-29T00:00:00Z'), id: '2b'},
+        {type: 'bad',  text: 'ghi', person: 'ww', createdAt: new Date('2012-08-31T00:00:00Z'), id: '3c'},
+        {type: 'good', text: 'jkl', person: 'ww', createdAt: new Date('2013-12-01T00:00:00Z'), id: '4d'}
       ]
     }};
 
     beforeEach(function () {
-      clock = sinon.useFakeTimers(new Date('2015-01-01T08:00:00-0400').getTime());
-      N = notesInit();
+      // clock = sinon.useFakeTimers(new Date('2015-01-01T08:00:00-0400').getTime());
+      N = notesInit(_.cloneDeep(exampleDb));
     });
 
     afterEach(function () {
-      clock.restore();
+      // clock.restore();
     });
 
     it('should save a new note', function (done) {
+      var startCount = N.db.notes.length;
       N.save(exampleNote, function (err, result) {
-        var saved = N.db.notes[0];
+        var saved = N.db.notes[N.db.notes.length - 1];
         expect(err).to.be.null;
         expect(result).to.be.an('object');
-        expect(N.db.notes).to.have.length(1);
+        expect(result).to.deep.equal(saved);
+        expect(N.db.notes).to.have.length(startCount + 1);
         expect(saved.createdAt).to.be.an.instanceof(Date);
         expect(saved.id).to.be.a('string');
-        done(err);
+        done();
       });
     });
 
@@ -69,39 +72,57 @@ describe('Notes DB', function () {
     });
 
     it('should retrieve all existing notes, grouped by type', function (done) {
-      var N = notesInit(exampleDb);
-
       N.retrieve(function (err, results) {
         expect(err).to.be.null;
         expect(results.good).to.exist.and.to.have.length(2);
         expect(results.bad).to.exist.and.to.have.length(2);
-        done(err);
+        done();
       });
     });
 
     it('should retrieve notes since a date', function (done) {
-      var N = notesInit(exampleDb);
-
       N.retrieveSince('2012-01-01', function (err, results) {
         expect(err).to.be.null;
         expect(results.good).to.exist.and.to.have.length(1);
         expect(results.bad).to.exist.and.to.have.length(1);
-        done(err);
+        done();
       });
     });
 
     it('should retrieve notes since a partial date', function (done) {
-      var N = notesInit(exampleDb);
-
       N.retrieveSince('2013', function (err, results) {
         expect(err).to.be.null;
         expect(results.good).to.exist.and.to.have.length(1);
         expect(results.bad).to.be.undefined;
-        done(err);
+        done();
       });
     });
 
     it('should handle timezone comparisons correctly but this seems impossible to test because you cant mock out the "local" timezone');
+
+    it('should retrieve notes by person', function (done) {
+      N.retrieveByPerson('ww', function (err, results) {
+        expect(err).to.be.null;
+        expect(results.good).to.exist.and.to.have.length(2);
+        expect(results.bad).to.exist.and.to.have.length(1);
+        done();
+      });
+    });
+
+    it('should retrieve notes by person since a date', function (done) {
+
+      N.retrieveSince('2011', function (err, results) {
+        expect(err).to.be.null;
+        expect(results.bad).to.exist.and.to.have.length(2);
+
+        N.retrieveByPersonSince('ww', '2011', function (err, results) {
+          expect(err).to.be.null;
+          expect(results.bad).to.exist.and.to.have.length(1);
+
+          done();
+        });
+      });
+    });
 
   });
 

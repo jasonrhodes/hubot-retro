@@ -65,23 +65,23 @@ NotesDb.prototype.retrieveSince = function (since, callback) {
   callback(null, results);
 };
 
-NotesDb.prototype.retrieveByPersonSince = function (person, since, callback) {
-  var results;
+NotesDb.prototype.retrieveByPerson = function (person, callback) {
+  var results, self = this;
   try {
     var filtered = filterBy(this.db.notes, 'person', person);
-    filtered = filterSince(filtered, since);
-    results = this.stringifyTypeGroups(filtered);
+    results = self.stringifyTypeGroups(filtered);
   } catch (error) {
     return callback(error);
   }
   callback(null, results);
 };
 
-NotesDb.prototype.retrieveByPerson = function (person, callback) {
-  var results, self = this;
+NotesDb.prototype.retrieveByPersonSince = function (person, since, callback) {
+  var results;
   try {
     var filtered = filterBy(this.db.notes, 'person', person);
-    results = self.stringifyTypeGroups(filtered);
+    filtered = filterSince(filtered, since);
+    results = this.stringifyTypeGroups(filtered);
   } catch (error) {
     return callback(error);
   }
